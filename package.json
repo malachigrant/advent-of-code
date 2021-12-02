@@ -7,7 +7,8 @@
   "private": false,
   "type": "module",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "day": "node run.js 2021"
   },
   "jest": {
     "transform": {

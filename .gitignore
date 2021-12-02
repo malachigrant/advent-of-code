@@ -1,3 +1,6 @@
+# My Input Files
+**/inputs/day/*.input
+
 # Logs
 logs
 *.log
