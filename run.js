@@ -1,10 +1,7 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
 const year = process.argv[2];
 const day = process.argv[3];
 
 const { part1, part2 } = await import(`./src/${year}/days/day${day}.js`);
-console.log(part1);
 
 console.log(`${year} Day ${day}\n`);
 const inputFile = `day/${day}.input`;
