@@ -8,7 +8,8 @@
   "type": "module",
   "scripts": {
     "test": "jest",
-    "day": "node run.js 2021"
+    "day": "node run.js 2021",
+    "addDay": "node createFiles.js 2021"
   },
   "jest": {
     "transform": {
