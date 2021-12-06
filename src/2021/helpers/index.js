@@ -9,6 +9,10 @@ export function readInput(filePath) {
     .map(str => str.trim());
 }
 
+export function readLine(filePath) {
+  return readInput(filePath)[0];
+}
+
 export function readNumberInput(filePath) {
   return readInput(filePath)
     .map(Number);
