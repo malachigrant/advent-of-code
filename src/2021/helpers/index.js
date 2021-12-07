@@ -21,3 +21,10 @@ export function readNumberInput(filePath) {
 export function binaryToDecimal(binary) {
   return parseInt(binary, 2);
 }
+
+export function getMinMax(input) {
+  return {
+    min: Math.min(...input),
+    max: Math.max(...input)
+  };
+}
