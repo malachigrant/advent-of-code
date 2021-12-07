@@ -7,5 +7,5 @@ describe('day6', () => {
 
   it('part 2 returns 26984457539', () => {
     expect(part2('test/6.input')).toBe(26984457539);
-  })
+  });
 });

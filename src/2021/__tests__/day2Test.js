@@ -8,5 +8,5 @@ describe('day2', () => {
 
   it('part 2 returns 900', () => {
     expect(part2('test/2.input')).toBe(900);
-  })
+  });
 });
