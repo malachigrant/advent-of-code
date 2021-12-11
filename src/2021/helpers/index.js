@@ -18,9 +18,9 @@ export function readNumberInput(filePath) {
     .map(Number);
 }
 
-export function parseGrid(filePath, separator = '') {
+export function parseGrid(filePath, { mapFn = Number, separator = '' } = {}) {
   return readInput(filePath)
-    .map(str => str.split(separator));
+    .map(str => str.split(separator).map(mapFn));
 }
 
 export function binaryToDecimal(binary) {
@@ -42,10 +42,10 @@ export function forEachCell(grid, callback) {
   });
 }
 
-export function logGrid(grid) {
+export function logGrid(grid, separator = '') {
   let output = '';
   grid.forEach(row => {
-    output += row.join(' ') + '\n';
+    output += row.join(separator) + '\n';
   });
   console.log(output);
 }
