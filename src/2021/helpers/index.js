@@ -18,6 +18,11 @@ export function readNumberInput(filePath) {
     .map(Number);
 }
 
+export function parseGrid(filePath, separator = '') {
+  return readInput(filePath)
+    .map(str => str.split(separator));
+}
+
 export function binaryToDecimal(binary) {
   return parseInt(binary, 2);
 }
@@ -27,4 +32,20 @@ export function getMinMax(input) {
     min: Math.min(...input),
     max: Math.max(...input)
   };
+}
+
+export function forEachCell(grid, callback) {
+  grid.forEach((row, y) => {
+    row.forEach((cell, x) => {
+      callback(cell, x, y);
+    });
+  });
+}
+
+export function logGrid(grid) {
+  let output = '';
+  grid.forEach(row => {
+    output += row.join(' ') + '\n';
+  });
+  console.log(output);
 }
