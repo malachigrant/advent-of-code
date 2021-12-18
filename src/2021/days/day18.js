@@ -1,10 +1,10 @@
-import { readNumberInput, readInput } from '../helpers/index.js';
+import { readInput } from '../helpers/index.js';
 
 function checkExplode(tree, depth = 1) {
   if (typeof tree === 'number') {
     return false;
   }
-  const { left, right, parent } = tree;
+  const { left, right } = tree;
   if (depth > 4 && typeof left === 'number' && typeof right === 'number') {
     return tree;
   }
@@ -27,15 +27,24 @@ function checkAndPerformSplit(tree) {
     const num = tree.left;
     tree.left = { left: Math.floor(num/2), right: Math.ceil(num/2), parent: tree };
     return true;
-  } else if (typeof tree.right === 'number' && tree.right >= 10) {
+  } else if (typeof tree.left === 'object') {
+    const leftResult = checkAndPerformSplit(tree.left);
+    if (leftResult) {
+      return leftResult;
+    }
+  }
+  
+  if (typeof tree.right === 'number' && tree.right >= 10) {
     const num = tree.right;
     tree.right = { left: Math.floor(num/2), right: Math.ceil(num/2), parent: tree };
     return true;
-  } else if (typeof tree.left === 'number' && typeof tree.right === 'number') {
-    return false;
+  } else if (typeof tree.right === 'object') {
+    const rightResult = checkAndPerformSplit(tree.right);
+    if (rightResult) {
+      return rightResult;
+    }
   }
-  const leftResult = checkAndPerformSplit(tree.left);
-  return leftResult || checkAndPerformSplit(tree.right);
+  return false;
 }
 
 function doExplode(treeNode) {
@@ -106,43 +115,62 @@ function parseToArray(tree) {
   return tree;
 }
 
+function calculateMagnitude(tree) {
+  if (typeof tree === 'number') {
+    return tree;
+  } else {
+    return 3 * calculateMagnitude(tree.left) + 2 * calculateMagnitude(tree.right);
+  }
+}
+
 function parseLine(arr, i) {
   const pair = JSON.parse(arr[i]);
   return pair;
 }
 
+function reducePair(pair) {
+  const tree = parseToTree(pair);
+  let didAction = true;
+  while (didAction) {
+    didAction = false;
+    const explode = checkExplode(tree);
+    if (explode) {
+      doExplode(explode);
+      didAction = true;
+      continue;
+    } else {
+      didAction = checkAndPerformSplit(tree);
+      if (didAction) {
+      }
+    }
+  }
+  return parseToArray(tree);
+}
+
 export function part1(fileName) {
   const arr = readInput(fileName);
   let overallPair = parseLine(arr, 0);
-  arr.forEach((line, y) => {
-    if (y === 0) return;
+  arr.slice(1).forEach(line => {
     const pair = JSON.parse(line);
-    overallPair = [overallPair, pair];
-    const tree = parseToTree(overallPair);
-    let didAction = true;
-    while (didAction) {
-      didAction = false;
-      const explode = checkExplode(tree);
-      if (explode) {
-        doExplode(explode);
-        console.log('explode', JSON.stringify(parseToArray(tree)));
-        didAction = true;
-        continue;
-      } else {
-        didAction = checkAndPerformSplit(tree);
-        if (didAction) {
-          console.log('split', JSON.stringify(parseToArray(tree)));
-        }
-      }
-    }
-    overallPair = parseToArray(tree);
-    console.log(JSON.stringify(overallPair));
+    overallPair = reducePair([overallPair, pair]);
   });
   
-  console.log(JSON.stringify(overallPair));
+  return calculateMagnitude(parseToTree(overallPair));
 }
 
 export function part2(fileName) {
   const arr = readInput(fileName);
-
+  let largestMagnitude = 0;
+  arr.forEach((line, y) => {
+    arr.forEach((otherLine, x) => {
+      if (y === x) {
+        return;
+      }
+      const pair = [JSON.parse(line), JSON.parse(otherLine)];
+      const magnitude = calculateMagnitude(parseToTree(reducePair(pair)));
+      largestMagnitude = Math.max(largestMagnitude, magnitude);
+    });
+  });
+  
+  return largestMagnitude;
 }
