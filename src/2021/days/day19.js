@@ -16,7 +16,7 @@ function getInfo(a, b) {
   return `${getBlockDistance(a, b)},${getDistance(a, b)},${getMinMax(a, b)}`;
 }
 
-export function part1(fileName) {
+function parseInput(fileName) {
   const arr = readInput(fileName);
   const scanners = [];
   let readingScanner = -1;
@@ -32,7 +32,95 @@ export function part1(fileName) {
     }
     scanners[readingScanner].push(line.split(',').map(Number));
   });
+  return scanners;
+}
 
+const transformFormats = [
+  [0, 1, 2],
+  [0, 2, 1],
+  [1, 0, 2],
+  [1, 2, 0],
+  [2, 0, 1],
+  [2, 1, 0],
+];
+const transformMultipliers = [
+  [1, 1, 1],
+  [1, 1, -1],
+  [1, -1, 1],
+  [1, -1, -1],
+  [-1, 1, 1],
+  [-1, 1, -1],
+  [-1, -1, 1],
+  [-1, -1, -1],
+];
+
+function transformCoords(coords, format, multiplier) {
+  return format.map((val, i) => coords[val] * multiplier[i]);
+}
+export function part1(fileName) {
+  const scanners = parseInput(fileName);
+  const unknownScanners = [...scanners.slice(1).map((_, i) => i + 1)];
+  console.log(unknownScanners);
+  const knownScannerPositions = [[0,0,0]]; // scanner 0 is the center point
+  for (let j = 0; j < knownScannerPositions.length; j++) {
+    if (!knownScannerPositions[j]) {
+      continue;
+    }
+    const knownScanner = scanners[j];
+    for (let i = 0; i < unknownScanners.length; i++) {
+      const unknownScanner = scanners[unknownScanners[i]];
+      console.log('unknown', unknownScanners[i], 'known', j);
+      if (unknownScanners[i] === 4 && j === 1) {
+        console.log(unknownScanner, knownScanner);
+      }
+      transformFormats.some(transform => {
+        return transformMultipliers.some(multiplier => {
+          return unknownScanner.some(unknownCoord => {
+            function getDiff(knownCoord, translatedCoord) {
+              return [knownCoord[0] - translatedCoord[0], knownCoord[1] - translatedCoord[1], knownCoord[2] - translatedCoord[2]];
+            }
+            const transformedCoords = transformCoords(unknownCoord, transform, multiplier);
+            const diff = getDiff(knownScanner[0], transformedCoords);
+            function sameDiff(otherDiff) {
+              return diff.every((val, axis) => {
+                return val === otherDiff[axis]
+              });
+            }
+            let countSame = 1;
+            knownScanner.some(knownCoord => {
+              unknownScanner.some(unknownCoord2 => {
+                if (sameDiff(getDiff(knownCoord, transformCoords(unknownCoord2, transform, multiplier)))) {
+                  if (unknownScanners[i] === 4 && j === 1 && diff[0] === 88) {
+                    console.log('same', countSame, diff);
+                  }
+                  if (countSame > 8) {
+                    console.log('samediff', countSame);
+                  }
+                  countSame++;
+                  return true;
+                }
+              });
+              if (countSame >= 12) {
+                console.log('samed 12', unknownScanners[i]);
+                knownScannerPositions[unknownScanners[i]] = diff;
+                scanners[unknownScanners[i]] = scanners[unknownScanners[i]].map(coord => transformCoords(coord, transform, multiplier).map((val, axis) => val + diff[axis]));
+                unknownScanners.splice(i, 1);
+                i--;
+                console.log(knownScannerPositions, unknownScanners);
+                return true;
+              }
+            });
+          });
+        });
+      });
+      //const [x, y, z] = scanner[j];
+      //knownScanners.push([x, y, z]);
+    }
+  }
+}
+
+export function old_part1(fileName) {
+  const scanners = parseInput(fileName);
   const scannerDistancesMap = [];
   scanners.forEach((scanner, i) => {
     const currentScannerDistMap = [];
