@@ -57,6 +57,45 @@ const transformMultipliers = [
 function transformCoords(coords, format, multiplier) {
   return format.map((val, i) => coords[val] * multiplier[i]);
 }
+
+function addVec(a, b) {
+  return a.map((val, i) => val + b[i]);
+}
+
+function subVec(a, b) {
+  return a.map((val, i) => val - b[i]);
+}
+
+function findOverlap(...scanners) {
+  const found = {};
+  let overlapCount = 0;
+  scanners.forEach(scanner => {
+    scanner.forEach(scanner1Coords => {
+      const coordStr = `${scanner1Coords[0]},${scanner1Coords[1]},${scanner1Coords[2]}`;
+      if (found[coordStr]) {
+        overlapCount++;
+      }
+      found[coordStr] = true;
+    });
+  });
+  return overlapCount;
+}
+
+function findUniqueBeacons(scanners, scannerPositions) {
+  const found = {};
+  let count = 0;
+  scanners.forEach((scanner, i) => {
+    scanner.forEach(coord => {
+      const translatedCoord = addVec(coord, scannerPositions[i]);
+      const coordStr = `${translatedCoord[0]},${translatedCoord[1]},${translatedCoord[2]}`;
+      if (!found[coordStr]) {
+        count++;
+      }
+      found[coordStr] = true;
+    });
+  });
+}
+
 export function part1(fileName) {
   const scanners = parseInput(fileName);
   const unknownScanners = [...scanners.slice(1).map((_, i) => i + 1)];
@@ -70,53 +109,32 @@ export function part1(fileName) {
     for (let i = 0; i < unknownScanners.length; i++) {
       const unknownScanner = scanners[unknownScanners[i]];
       console.log('unknown', unknownScanners[i], 'known', j);
-      if (unknownScanners[i] === 4 && j === 1) {
-        console.log(unknownScanner, knownScanner);
-      }
       transformFormats.some(transform => {
         return transformMultipliers.some(multiplier => {
-          return unknownScanner.some(unknownCoord => {
-            function getDiff(knownCoord, translatedCoord) {
-              return [knownCoord[0] - translatedCoord[0], knownCoord[1] - translatedCoord[1], knownCoord[2] - translatedCoord[2]];
-            }
-            const transformedCoords = transformCoords(unknownCoord, transform, multiplier);
-            const diff = getDiff(knownScanner[0], transformedCoords);
-            function sameDiff(otherDiff) {
-              return diff.every((val, axis) => {
-                return val === otherDiff[axis]
-              });
-            }
-            let countSame = 1;
-            knownScanner.some(knownCoord => {
-              unknownScanner.some(unknownCoord2 => {
-                if (sameDiff(getDiff(knownCoord, transformCoords(unknownCoord2, transform, multiplier)))) {
-                  if (unknownScanners[i] === 4 && j === 1 && diff[0] === 88) {
-                    console.log('same', countSame, diff);
-                  }
-                  if (countSame > 8) {
-                    console.log('samediff', countSame);
-                  }
-                  countSame++;
-                  return true;
-                }
-              });
-              if (countSame >= 12) {
-                console.log('samed 12', unknownScanners[i]);
-                knownScannerPositions[unknownScanners[i]] = diff;
-                scanners[unknownScanners[i]] = scanners[unknownScanners[i]].map(coord => transformCoords(coord, transform, multiplier).map((val, axis) => val + diff[axis]));
+          return knownScanner.some(knownCoords => {
+            return unknownScanner.some(unknownCoords => {
+              const diff = subVec(knownCoords, transformCoords(unknownCoords, transform, multiplier));
+              const translatedUnknownScanner = unknownScanner.map(coords => addVec(diff, transformCoords(coords, transform, multiplier)));
+              const overlap = findOverlap(knownScanner, translatedUnknownScanner);
+              if (overlap >= 12) {
+                console.log(i, j, overlap, addVec(diff, knownScannerPositions[j]));
+                knownScannerPositions[unknownScanners[i]] = addVec(diff, knownScannerPositions[j]);
+                unknownScanner.forEach((coord, coordIndex) => {
+                  unknownScanner[coordIndex] = transformCoords(coord, transform, multiplier);
+                });
                 unknownScanners.splice(i, 1);
+                console.log(unknownScanners, i, j);
                 i--;
-                console.log(knownScannerPositions, unknownScanners);
                 return true;
               }
             });
           });
         });
       });
-      //const [x, y, z] = scanner[j];
-      //knownScanners.push([x, y, z]);
     }
   }
+  console.log(knownScannerPositions);
+  return findUniqueBeacons(scanners, knownScannerPositions);
 }
 
 export function old_part1(fileName) {
