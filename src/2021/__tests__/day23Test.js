@@ -5,7 +5,7 @@ describe('day23', () => {
     expect(part1('test/23.input')).toBe(12521);
   });
 
-  xit('part 2 returns correct value', () => {
-    expect(part2('test/23.input')).toBe(12345);
+  it('part 2 returns correct value', () => {
+    expect(part2('test/23.input')).toBe(44169);
   });
 });
