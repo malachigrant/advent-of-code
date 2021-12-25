@@ -32,12 +32,12 @@ function findMinPath(grid, x, y) {
 }
 
 export function part1(fileName) {
-  const grid = parseGrid(fileName);
+  const grid = parseGrid(fileName, { mapFn: Number});
   return findMinPath(grid, 0, 0);
 }
 
 export function part2(fileName) {
-  const startGrid = parseGrid(fileName);
+  const startGrid = parseGrid(fileName, { mapFn: Number});
   const grid = [];
   for (let i = 0; i < 5; i++) {
     startGrid.forEach(row => {

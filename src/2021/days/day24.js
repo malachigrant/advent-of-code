@@ -27,6 +27,15 @@ function runLine(line, memory, inputValue) {
   }
 }
 
+export function runALU(fileName) {
+  const arr = readInput(fileName);
+  const memory = { w: 0, x: 0, y: 0, z: 0 };
+  arr.forEach(line => {
+    runLine(line, memory);
+  });
+  return memory;
+}
+
 export function part1(fileName) {
   const arr = readInput(fileName);
 

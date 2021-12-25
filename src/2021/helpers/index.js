@@ -18,7 +18,7 @@ export function readNumberInput(filePath) {
     .map(Number);
 }
 
-export function parseGrid(filePath, { mapFn = Number, separator = '' } = {}) {
+export function parseGrid(filePath, { mapFn = v => v, separator = '' } = {}) {
   return readInput(filePath)
     .map(str => str.split(separator).map(mapFn));
 }

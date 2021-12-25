@@ -32,7 +32,7 @@ function findLows(grid) {
 }
 
 export function part1(fileName) {
-  const grid = parseGrid(fileName);
+  const grid = parseGrid(fileName, { mapFn: Number});
   const lows = findLows(grid);
   return lows.reduce((acc, curr) => acc + grid[curr.y][curr.x] + 1, 0);
 }
@@ -63,7 +63,7 @@ function findBasinSize(grid, x, y) {
 }
 
 export function part2(fileName) {
-  const grid = parseGrid(fileName);
+  const grid = parseGrid(fileName, { mapFn: Number});
   const basinSizes = [];
   const lows = findLows(grid);
   lows.forEach(({x, y}) => basinSizes.push(findBasinSize(grid, x, y)));
